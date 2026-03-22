@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Trash2, CheckCircle2 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Trash2, CheckCircle2, Menu, UserCircle, LayoutList, Tag, ShoppingBasket, User } from 'lucide-react';
 import { useShoppingList } from '@/hooks/useShoppingList';
 import { categories } from '@/lib/categories';
 import ProductForm from './ProductForm';
@@ -11,6 +11,7 @@ import EmptyState from './EmptyState';
 export default function ShoppingList() {
   const { products, addProduct, removeProduct, toggleProduct, updateProduct, clearChecked, clearAll } = useShoppingList();
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const groupedProducts = categories.reduce((acc, cat) => {
     const catProducts = products
@@ -38,20 +39,30 @@ export default function ShoppingList() {
     }
   };
 
+  const handleAddFirst = () => {
+    inputRef.current?.focus();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-gray-100 px-4 py-4">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <span className="text-2xl">🛒</span>
-          <h1 className="text-xl font-bold text-gray-900">Alışveriş Listesi</h1>
+    <div className="min-h-screen bg-[var(--surface)]">
+      {/* Top App Bar */}
+      <header className="fixed top-0 w-full z-50 bg-[var(--color-surface)]/80 backdrop-blur-md flex items-center justify-between px-6 h-16">
+        <div className="flex items-center gap-4">
+          <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-[var(--color-surface-container-low)] transition-colors text-[var(--color-primary)] active:scale-95 duration-200">
+            <Menu className="w-6 h-6" strokeWidth={1.5} />
+          </button>
+          <h1 className="font-semibold text-xl tracking-tight text-[var(--color-primary)]">Alışveriş Listem</h1>
         </div>
+        <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-[var(--color-surface-container-low)] transition-colors text-[var(--color-primary)] active:scale-95 duration-200">
+          <UserCircle className="w-6 h-6" strokeWidth={1.5} />
+        </button>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6">
-        <ProductForm onAdd={addProduct} />
+      <main className="flex-grow flex flex-col items-center justify-center px-8 pt-16 pb-24">
+        <ProductForm ref={inputRef} onAdd={addProduct} />
 
         {products.length === 0 ? (
-          <EmptyState />
+          <EmptyState onAddFirst={handleAddFirst} />
         ) : (
           <>
             {Object.entries(groupedProducts).map(([catId, catProducts]) => (
@@ -66,10 +77,10 @@ export default function ShoppingList() {
             ))}
 
             {hasChecked && (
-              <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+              <div className="flex gap-3 mt-6 pt-4 border-t border-[var(--color-outline-variant)]/15">
                 <button
                   onClick={clearChecked}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-50 text-green-700 font-semibold rounded-xl hover:bg-green-100 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-surface-container-low)] text-[var(--color-on-surface)] font-semibold rounded-xl hover:bg-[var(--color-surface-container-high)] transition-colors"
                 >
                   <CheckCircle2 className="w-5 h-5" strokeWidth={1.5} />
                   <span>İşaretlileri Temizle ({checkedCount})</span>
@@ -78,8 +89,8 @@ export default function ShoppingList() {
                   onClick={handleClearAll}
                   className={`flex items-center justify-center gap-2 px-4 py-3 font-semibold rounded-xl transition-colors ${
                     showClearAllConfirm
-                      ? 'bg-red-500 text-white'
-                      : 'bg-red-50 text-red-600 hover:bg-red-100'
+                      ? 'bg-[var(--color-error)] text-white'
+                      : 'bg-[var(--color-error-container)] text-[var(--color-on-error-container)] hover:bg-[var(--color-error)] hover:text-white'
                   }`}
                 >
                   <Trash2 className="w-5 h-5" strokeWidth={1.5} />
@@ -90,6 +101,26 @@ export default function ShoppingList() {
           </>
         )}
       </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[var(--color-surface)]/85 backdrop-blur-xl rounded-t-3xl border-t border-white/10 shadow-[0_-8px_24px_rgba(46,47,47,0.06)]">
+        <a href="#" className="flex flex-col items-center justify-center text-[var(--color-primary)] bg-[var(--color-primary-container)]/10 rounded-2xl px-4 py-1 scale-110 transition-transform duration-300 ease-out">
+          <LayoutList className="w-6 h-6" strokeWidth={1.5} style={{ fill: 'currentColor' }} />
+          <span className="text-[10px] font-bold uppercase tracking-wider mt-1">Listelerim</span>
+        </a>
+        <a href="#" className="flex flex-col items-center justify-center text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] transition-colors">
+          <Tag className="w-6 h-6" strokeWidth={1.5} />
+          <span className="text-[10px] font-bold uppercase tracking-wider mt-1">Kampanyalar</span>
+        </a>
+        <a href="#" className="flex flex-col items-center justify-center text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] transition-colors">
+          <ShoppingBasket className="w-6 h-6" strokeWidth={1.5} />
+          <span className="text-[10px] font-bold uppercase tracking-wider mt-1">Sepetim</span>
+        </a>
+        <a href="#" className="flex flex-col items-center justify-center text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] transition-colors">
+          <User className="w-6 h-6" strokeWidth={1.5} />
+          <span className="text-[10px] font-bold uppercase tracking-wider mt-1">Profil</span>
+        </a>
+      </nav>
     </div>
   );
 }
