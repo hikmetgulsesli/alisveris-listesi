@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Plus } from 'lucide-react';
+
 import { CategoryId } from '@/types';
 import { categories } from '@/lib/categories';
 
@@ -24,47 +24,63 @@ export default function ProductForm({ onAdd }: ProductFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl p-4 shadow-sm mb-6">
-      <div className="flex flex-col gap-3">
-        <div className="flex gap-2">
+    <section className="bg-surface-container-lowest dark:bg-inverse-surface rounded-xl p-6">
+      <h2 className="font-semibold text-lg mb-4 text-on-surface">Yeni Ürün Ekle</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-outline" htmlFor="product-name">
+            Ürün Adı
+          </label>
           <input
+            id="product-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ürün adı..."
-            className="flex-1 px-4 py-3 bg-gray-50 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 transition-all"
+            className="w-full h-12 px-4 bg-surface-container-low dark:bg-surface-container-high/10 rounded-lg border-none focus:ring-2 focus:ring-primary/40 text-on-surface placeholder:text-outline/60"
             autoFocus
           />
-          <button
-            type="submit"
-            disabled={!name.trim()}
-            className="px-5 py-3 bg-gradient-to-br from-orange-600 to-orange-500 text-white font-semibold rounded-xl hover:from-orange-500 hover:to-orange-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" strokeWidth={2} />
-            <span>Ekle</span>
-          </button>
         </div>
-        <div className="flex gap-2">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as CategoryId)}
-            className="flex-1 px-4 py-2 bg-gray-50 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400"
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.emoji} {cat.label}
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-            min={1}
-            className="w-20 px-3 py-2 bg-gray-50 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 text-center"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-outline" htmlFor="product-category">
+              Kategori
+            </label>
+            <select
+              id="product-category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as CategoryId)}
+              className="w-full h-12 px-4 bg-surface-container-low dark:bg-surface-container-high/10 rounded-lg border-none focus:ring-2 focus:ring-primary/40 text-on-surface appearance-none cursor-pointer"
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.emoji} {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-outline" htmlFor="product-quantity">
+              Miktar
+            </label>
+            <input
+              id="product-quantity"
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              min={1}
+              className="w-full h-12 px-4 bg-surface-container-low dark:bg-surface-container-high/10 rounded-lg border-none focus:ring-2 focus:ring-primary/40 text-on-surface cursor-pointer"
+            />
+          </div>
         </div>
-      </div>
-    </form>
+        <button
+          type="submit"
+          disabled={!name.trim()}
+          className="w-full h-12 mt-2 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-xl active:scale-[0.98] transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        >
+          Ekle
+        </button>
+      </form>
+    </section>
   );
 }

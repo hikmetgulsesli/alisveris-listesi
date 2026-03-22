@@ -16,14 +16,19 @@ export default function CategoryGroup({ categoryId, products, onToggle, onRemove
   const category = getCategory(categoryId as CategoryId);
   if (!category) return null;
 
+  // checkedCount available for future use
+  // const checkedCount = products.filter((p) => p.checked).length;
+
   return (
-    <div className="mb-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-        <span>{category.emoji}</span>
-        <span>{category.label}</span>
-        <span className="text-sm font-normal text-gray-500">({products.length})</span>
-      </h2>
-      <div className="space-y-2">
+    <section className="space-y-4">
+      <div className="flex items-baseline justify-between">
+        <h3 className="font-headline font-semibold text-xl text-on-surface flex items-center gap-2">
+          <span>{category.emoji}</span>
+          <span>{category.label}</span>
+          <span className="text-sm font-normal text-outline ml-1">({products.length})</span>
+        </h3>
+      </div>
+      <div className="space-y-3">
         {products.map((product) => (
           <ProductItem
             key={product.id}
@@ -34,6 +39,6 @@ export default function CategoryGroup({ categoryId, products, onToggle, onRemove
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

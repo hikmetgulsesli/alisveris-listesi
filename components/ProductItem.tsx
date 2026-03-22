@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Trash2, Check } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Trash2 } from 'lucide-react';
 import { Product } from '@/types';
 import { getCategory } from '@/lib/categories';
 
@@ -13,68 +13,163 @@ interface ProductItemProps {
 }
 
 export default function ProductItem({ product, onToggle, onRemove, onUpdate }: ProductItemProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingQuantity, setIsEditingQuantity] = useState(false);
   const [editName, setEditName] = useState(product.name);
+  const [editQuantity, setEditQuantity] = useState(product.quantity);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const quantityInputRef = useRef<HTMLInputElement>(null);
+
   const category = getCategory(product.category);
 
+  // Get quantity display text
+  const getQuantityLabel = (qty: number) => {
+    if (product.category === 'kasap') return `${qty} kg`;
+    if (product.category === 'fırın') return `${qty} adet`;
+    if (product.category === 'meyve') return `${qty} kg`;
+    if (product.category === 'manav') return `${qty} kg`;
+    return `${qty} adet`;
+  };
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [isEditingName]);
+
+  useEffect(() => {
+    if (isEditingQuantity && quantityInputRef.current) {
+      quantityInputRef.current.focus();
+      quantityInputRef.current.select();
+    }
+  }, [isEditingQuantity]);
+
   const handleNameSubmit = () => {
-    if (editName.trim() && editName !== product.name) {
-      onUpdate(product.id, { name: editName.trim() });
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== product.name) {
+      onUpdate(product.id, { name: trimmed });
     } else {
       setEditName(product.name);
     }
-    setIsEditing(false);
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleNameSubmit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setEditName(product.name);
+      setIsEditingName(false);
+    }
+  };
+
+  const handleQuantitySubmit = () => {
+    const qty = Math.max(1, Math.round(editQuantity));
+    if (qty !== product.quantity) {
+      onUpdate(product.id, { quantity: qty });
+    } else {
+      setEditQuantity(product.quantity);
+    }
+    setIsEditingQuantity(false);
+  };
+
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleQuantitySubmit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setEditQuantity(product.quantity);
+      setIsEditingQuantity(false);
+    }
+  };
+
+  const handleQuantityBlur = () => {
+    handleQuantitySubmit();
   };
 
   return (
     <div
-      className={`flex items-center gap-3 p-3 bg-white rounded-lg transition-all duration-150 ${
+      className={`flex items-center gap-4 p-4 bg-surface-container-lowest dark:bg-inverse-surface rounded-xl min-h-[56px] group ${
         product.checked ? 'opacity-60' : ''
       }`}
     >
-      <button
-        onClick={() => onToggle(product.id)}
-        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-150 flex-shrink-0 ${
-          product.checked
-            ? 'bg-green-500 border-green-500 text-white'
-            : 'border-gray-300 hover:border-green-400'
-        }`}
+      {/* Checkbox */}
+      <input
+        type="checkbox"
+        checked={product.checked}
+        onChange={() => onToggle(product.id)}
+        className="w-6 h-6 rounded-lg border-outline-variant text-primary focus:ring-primary/20 cursor-pointer"
         aria-label={product.checked ? 'İşareti kaldır' : 'İşaretle'}
-      >
-        {product.checked && <Check className="w-4 h-4" strokeWidth={2.5} />}
-      </button>
+      />
 
-      <div className="flex-1 min-w-0">
-        {isEditing ? (
+      {/* Product info */}
+      <div className="flex-1 flex justify-between items-center min-w-0">
+        {/* Name - click to edit */}
+        {isEditingName ? (
           <input
+            ref={nameInputRef}
             type="text"
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
             onBlur={handleNameSubmit}
-            onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit()}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400"
-            autoFocus
+            onKeyDown={handleNameKeyDown}
+            className="flex-1 px-2 py-1 border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/40 bg-surface-container-low"
           />
         ) : (
-          <span
-            onDoubleClick={() => setIsEditing(true)}
-            className={`block text-base font-medium truncate cursor-default ${
-              product.checked ? 'line-through text-gray-400' : 'text-gray-900'
+          <button
+            onClick={() => setIsEditingName(true)}
+            className={`font-medium text-on-surface truncate cursor-pointer text-left hover:text-primary transition-colors ${
+              product.checked ? 'line-through' : ''
             }`}
-            title="Düzenlemek için çift tıklayın"
+            title="Düzenlemek için tıklayın"
+            aria-label={`${product.name} — düzenlemek için tıklayın`}
           >
             {product.name}
-          </span>
+          </button>
         )}
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className={category?.color}>{category?.emoji} {category?.label}</span>
-          <span>{product.quantity > 1 ? `${product.quantity} adet` : ''}</span>
+
+        {/* Quantity badge */}
+        <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+          {isEditingQuantity ? (
+            <input
+              ref={quantityInputRef}
+              type="number"
+              min="1"
+              value={editQuantity}
+              onChange={(e) => setEditQuantity(Number(e.target.value))}
+              onBlur={handleQuantityBlur}
+              onKeyDown={handleQuantityKeyDown}
+              className="w-16 px-2 py-1 border border-outline-variant rounded-lg text-sm text-on-surface text-center focus:outline-none focus:ring-2 focus:ring-primary/40 bg-surface-container-low"
+            />
+          ) : (
+            <button
+              onClick={() => setIsEditingQuantity(true)}
+              className="text-sm text-outline px-3 py-1 bg-surface-container-low dark:bg-white/5 rounded-full cursor-pointer hover:bg-surface-container transition-colors"
+              title="Miktarı düzenlemek için tıklayın"
+              aria-label={`Miktar: ${getQuantityLabel(product.quantity)} — düzenlemek için tıklayın`}
+            >
+              {getQuantityLabel(product.quantity)}
+            </button>
+          )}
+
+          {/* Category emoji indicator */}
+          {category && (
+            <span className="text-base" aria-hidden="true">
+              {category.emoji}
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Delete button */}
       <button
         onClick={() => onRemove(product.id)}
-        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+        className="p-2 text-error/60 hover:text-error transition-colors flex-shrink-0 cursor-pointer"
         aria-label="Ürünü sil"
       >
         <Trash2 className="w-5 h-5" strokeWidth={1.5} />
