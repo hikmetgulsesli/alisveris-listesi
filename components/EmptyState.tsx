@@ -1,17 +1,44 @@
 'use client';
 
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, ShoppingBasket } from 'lucide-react';
 
-export default function EmptyState() {
+interface EmptyStateProps {
+  onAddFirst?: () => void;
+}
+
+export default function EmptyState({ onAddFirst }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
-      <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-6">
-        <ShoppingCart className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+    <div className="flex flex-col items-center justify-center px-8 pt-8 pb-12 text-center">
+      {/* Hero Empty Visual */}
+      <div className="mb-8 relative">
+        <div className="absolute inset-0 bg-[#ff7a2c]/10 blur-3xl rounded-full scale-150" />
+        <div className="relative bg-[var(--color-surface-container-lowest)] dark:bg-inverse-surface w-32 h-32 rounded-3xl flex items-center justify-center shadow-2xl shadow-[#9b3f00]/5">
+          <ShoppingBasket
+            className="text-[var(--color-primary-container)] animate-bounce"
+            size={64}
+            strokeWidth={1.5}
+          />
+        </div>
       </div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Liste Boş</h2>
-      <p className="text-gray-500 text-sm max-w-xs">
-        Alışveriş listeniz boş görünüyor. Yukarıdaki formu kullanarak ürün ekleyin.
-      </p>
+
+      {/* Typography Content */}
+      <div className="max-w-xs mx-auto">
+        <h2 className="text-2xl font-bold text-[var(--color-on-surface)] mb-3 tracking-tight">
+          Alışveriş listeniz boş
+        </h2>
+        <p className="text-[var(--color-on-surface-variant)] leading-relaxed text-sm mb-10">
+          Alışverişe başlamak için ürün ekleyin ve sepetinizi doldurun.
+        </p>
+      </div>
+
+      {/* Call to Action */}
+      <button
+        onClick={onAddFirst}
+        className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-container)] text-[var(--color-on-primary)] px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-[#9b3f00]/20 active:scale-95 transition-all duration-200 flex items-center gap-3"
+      >
+        <ShoppingCart className="w-6 h-6" strokeWidth={1.5} />
+        İlk Ürün Ekle
+      </button>
     </div>
   );
 }
