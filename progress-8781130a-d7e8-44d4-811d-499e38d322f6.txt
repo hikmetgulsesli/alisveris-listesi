@@ -1,0 +1,15 @@
+=== US-002: useLocalStorage and useShoppingList hooks ===
+COMPLETED: 2026-03-22T17:20:00+00:00
+FILES CHANGED:
+  - hooks/useLocalStorage.ts (updated)
+  - hooks/useShoppingList.ts (updated)
+  - hooks/useShoppingList.test.ts (new)
+  - lib/utils.ts (new)
+  - lib/utils.test.ts (new)
+  - vitest.config.ts (new)
+KEY DECISIONS:
+  - Used crypto.randomUUID() instead of uuid package per modern standards
+  - Added removeProduct as alias to deleteProduct for backward compatibility with existing ShoppingList component
+  - Implemented groupByCategory as a pure utility function (not a hook)
+  - useLocalStorage uses SSR guard with window check and try/catch for quota errors
+DEPENDENCIES ADDED: vitest, @testing-library/react, @testing-library/dom, @vitejs/plugin-react, jsdom
